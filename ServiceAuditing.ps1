@@ -30,9 +30,13 @@ $servnames = @(
  "CDPUserSvc_2bb53","ConsentUxUserSvc_2bb53","CredentialEnrollmentManagerUserSvc_2bb53",
  "DeviceAssociationBrokerSvc_2bb53","DevicePickerUserSvc_2bb53","DevicesFlowUserSvc_2bb53",
  "PimIndexMaintenanceSvc_2bb53","PrintWorkflowUserSvc_2bb53","UdkUserSvc_2bb53",
- "UnistoreSvc_2bb53","UserDataSvc_2bb53","WpnUserService_2bb53" #end base windows services
+ "UnistoreSvc_2bb53","UserDataSvc_2bb53","WpnUserService_2bb53", #end base windows services
+ "NTDS","DFSR","kdc","IsmServ","NtFrs","DsRoleSvc","KdsSvc","dfs","ADWS", #end AD services 
+ "DNS", <#DNS server shortname#> "w3svc", <#Flask shortname#> "FTPSVC","MSFTPSVC", <#FTP shortnames#>
+ "SMTPSVC","MSFTPSVC","POP3SVC","IMAPSVC", <#SMTP shortnames#> "W3SVC","HTTP","IISADMIN", <#HTTP shortnames#>
+ "LanmanServer","LanmanWorkstation","Srv", <#SMB shortnames#> "WinRM","WSMan" <#WinRM shortnames#>
 )
-#Not a complete list, no services for scored 3rd party serices yet
+#Semi-Complete, contains all services for windows this comp
 
 $mservs = Get-WmiObject Win32_Service | Select-Object Name, DisplayName, PathName, StartMode, StartName, State
 
@@ -64,3 +68,4 @@ $origState | Export-Csv -Path ".\orig_service_states.csv" -NoTypeInformation
 #     }
 
 # }
+
