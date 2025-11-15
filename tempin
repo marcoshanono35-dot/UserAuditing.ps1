@@ -13,17 +13,25 @@ foreach ($user in $acc) {
 }
 
 
-Get-ADUser -Identity administrator -Properties userAccountControl |
-    Select SamAccountName, userAccountControl
-$user = "administrator"
+$builtins = @(
+    "administrator",
+    "guest",
+    "krbtgt",
+    "defaultaccount",
+    "dgonzalez"
+)
 
-# Get current UAC
-$uac = (Get-ADUser $user -Properties userAccountControl).userAccountControl
+foreach ($user in $builtins) {
+    try {
+        $acct = Get-ADUser $user -Properties userAccountControl -ErrorAction Stop
+        $uac = $acct.userAccountControl
+        $newUac = $uac -band (-bnot 2)   # Clear the DISABLED flag
 
-# Clear the '2' (AccountDisabled) bit
-$newUac = $uac -band (-bnot 2)
-
-Set-ADUser -Identity $user -Replace @{ userAccountControl = $newUac }
-
-Write-Host "Re-enabled: $user"
+        Set-ADUser -Identity $user -Replace @{ userAccountControl = $newUac }
+        Write-Host "Re-enabled: $user"
+    }
+    catch {
+        Write-Host "Could not process $user: $_"
+    }
+}
 
