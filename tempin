@@ -13,4 +13,7 @@ foreach ($user in $acc) {
 }
 
 
+Get-ADGroupMember "Domain Admins","Enterprise Admins" -Recursive | Where-Object {$_.ObjectClass -eq "user"} | Select-Object Name,SamAccountName,Enabled
+
+
 
