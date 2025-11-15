@@ -30,7 +30,7 @@ $servnames = @(
  "CDPUserSvc_2bb53","ConsentUxUserSvc_2bb53","CredentialEnrollmentManagerUserSvc_2bb53",
  "DeviceAssociationBrokerSvc_2bb53","DevicePickerUserSvc_2bb53","DevicesFlowUserSvc_2bb53",
  "PimIndexMaintenanceSvc_2bb53","PrintWorkflowUserSvc_2bb53","UdkUserSvc_2bb53",
- "UnistoreSvc_2bb53","UserDataSvc_2bb53","WpnUserService_2bb53"
+ "UnistoreSvc_2bb53","UserDataSvc_2bb53","WpnUserService_2bb53" #end base windows services
 )
 #Not a complete list, no services for scored 3rd party serices yet
 
@@ -62,4 +62,5 @@ $origState | Export-Csv -Path ".\orig_service_states.csv" -NoTypeInformation
 #     } catch {
 #         Write-Warning "Failed to restore $($r.Name): $_"
 #     }
+
 # }
