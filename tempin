@@ -14,7 +14,7 @@ foreach ($user in $acc) {
 
 
 # Bind directly to the krbtgt account (no AD cmdlet restrictions)
-$krbtgt = [ADSI]"LDAP://cn=krbtgt,cn=Users,dc=YOURDOMAIN,dc=COM"
+$krbtgt = [ADSI]"LDAP://cn=krbtgt,cn=Users,dc=mindmend,dc=ai"
 
 # Read current userAccountControl
 $uac = $krbtgt.userAccountControl[0]
