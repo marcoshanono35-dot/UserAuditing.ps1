@@ -79,10 +79,22 @@ foreach ($p in $maliciousPorts) {
         -Protocol TCP `
         -LocalPort $p `
         -Action Block
+
+        New-NetFirewallRule -DisplayName "Block Malicious Port $p" `
+        -Direction Inbound `
+        -Protocol UDP `
+        -LocalPort $p `
+        -Action Block
     
         New-NetFirewallRule -DisplayName "Block Malicious Port $p Outbound" `
         -Direction Outbound `
         -Protocol TCP `
+        -RemotePort $p `
+        -Action Block
+
+        New-NetFirewallRule -DisplayName "Block Malicious Port $p Outbound" `
+        -Direction Outbound `
+        -Protocol UDP `
         -RemotePort $p `
         -Action Block
     }
@@ -105,3 +117,10 @@ foreach ($processid in $PIDs) {
         Write-Host "$processid => (process not found)"
     }
 }
+
+Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force
+# Block external TCP 445
+#New-NetFirewallRule -DisplayName "Block SMB External" -Direction Inbound -Protocol TCP -LocalPort 445 -RemoteAddress "0.0.0.0/0" -Action Block
+
+
