@@ -19,3 +19,11 @@ nltest /dsgetdc:YOURDOMAIN
 Get-ADUser -Filter 'SamAccountName -like "krbtgt*"' -Properties Enabled,DistinguishedName
 
 
+
+$krb = Get-ADUser -Filter { SamAccountName -eq "krbtgt" } -Properties DistinguishedName,userAccountControl
+$dn = $krb.DistinguishedName
+
+$entry = [ADSI]("LDAP://$dn")
+
+$krb | Select SamAccountName, AdminCount, Enabled
+
