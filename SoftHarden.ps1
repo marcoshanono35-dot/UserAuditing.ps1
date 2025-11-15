@@ -7,51 +7,62 @@ Set-NetFirewallProfile -Profile Domain,Private,Public `
 -LogAllowed True -LogBlocked True -LogIgnored True -AllowUserApps False -AllowUserPorts False `
 -AllowUnicastResponseToMulticast False -AllowInboundRules True -AllowLocalFirewallRules True `
 -AllowLocalIPsecRules False
+
+# WIP CODE TO CREATE CRITICAL RULES THAT DONT EXIST, NOT CURRENTLY FUCTIONING PROPERLY
 #set critical rules
-$criticalRules = @(
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=3389; Action="Allow"},
-    [PSCustomObject]@{Direction='Outbound'; Protocol='UDP'; RemotePort=53; Action="Allow"},
-    [PSCustomObject]@{Direction='Outbound'; Protocol='TCP'; RemotePort=53; Action="Allow"},
-    [PSCustomObject]@{Direction='Outbound'; Protocol='UDP'; LocalPort=68; RemotePort=67; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='UDP'; LocalPort=67; RemotePort=68; Action="Allow"},
-    [PSCustomObject]@{Direction='Outbound'; Protocol='UDP'; RemotePort=123; Action="Allow"},
-    [PSCustomObject]@{Direction='Outbound'; Protocol='TCP'; RemotePort=443; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=445; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=139; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=80; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=443; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=135; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort="49152-65535"; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=389; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=636; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=88; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol='UDP'; LocalPort=88; Action="Allow"},
-    [PSCustomObject]@{Direction='Inbound'; Protocol="Any";LocalAddress=127.0.0.1; Action="Allow"},
-    [PSCustomObject]@{Direction='Outbound'; Protocol="Any"; LocalAddress=127.0.0.1; Action="Allow"}
+# $criticalRules = @(
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=3389; Action="Allow"},
+#     [PSCustomObject]@{Direction='Outbound'; Protocol='UDP'; RemotePort=53; Action="Allow"},
+#     [PSCustomObject]@{Direction='Outbound'; Protocol='TCP'; RemotePort=53; Action="Allow"},
+#     [PSCustomObject]@{Direction='Outbound'; Protocol='UDP'; LocalPort=68; RemotePort=67; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='UDP'; LocalPort=67; RemotePort=68; Action="Allow"},
+#     [PSCustomObject]@{Direction='Outbound'; Protocol='UDP'; RemotePort=123; Action="Allow"},
+#     [PSCustomObject]@{Direction='Outbound'; Protocol='TCP'; RemotePort=443; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=445; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=139; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=80; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=443; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=135; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort="49152-65535"; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=389; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=636; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='TCP'; LocalPort=88; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol='UDP'; LocalPort=88; Action="Allow"},
+#     [PSCustomObject]@{Direction='Inbound'; Protocol="Any";LocalAddress=127.0.0.1; Action="Allow"},
+#     [PSCustomObject]@{Direction='Outbound'; Protocol="Any"; LocalAddress=127.0.0.1; Action="Allow"}
     
-)
+# )
 
-foreach ($rule in $criticalRules) {
+# foreach ($rule in $criticalRules) {
 
-    $rule.DisplayName = "AutoRule_$($rule.Protocol)_$port"
+#     # Auto-generate DisplayName if missing
+#     if (-not $rule.PSObject.Properties.Match("DisplayName") -or -not $rule.DisplayName) {
+#         $rule | Add-Member -NotePropertyName DisplayName -NotePropertyValue `
+#             "AutoRule_$($rule.Direction)_$($rule.Protocol)_$($rule.LocalPort)" -Force
+#     }
 
-    # Check if the rule already exists
-    $exists = Get-NetFirewallRule | Get-NetFirewallPortFilter | Where-Object {
-        $_.Direction -eq $rule.Direction -and
-        $_.Protocol -eq $rule.Protocol -and
-        ($_.LocalPort -eq $rule.LocalPort -or $_.RemotePort -eq $rule.RemotePort)
-    }
+#     # Check if the rule already exists
+#     $exists = Get-NetFirewallPortFilter | Where-Object {
+#     $_.Direction -eq $rule.Direction -and
+#     ($rule.Protocol -eq "Any" -or $_.Protocol -eq $rule.Protocol) -and
+#     (
+#         ($rule.LocalPort  -and $_.LocalPort  -eq $rule.LocalPort) -or
+#         ($rule.RemotePort -and $_.RemotePort -eq $rule.RemotePort) -or
+#         (-not $rule.LocalPort -and -not $rule.RemotePort)
+#     )
+# }
 
-    # Only create the rule if it doesn't exist
-    if (-not $exists) {
-        New-NetFirewallRule -DisplayName $rule.DisplayName `
-                            -Direction $rule.Direction `
-                            -Protocol $rule.Protocol `
-                            -LocalPort $rule.LocalPort `
-                            -RemotePort $rule.RemotePort `
-                            -Action $rule.Action
-    }
-}
+
+#     # Only create the rule if it doesn't exist
+#     if (-not $exists) {
+#         New-NetFirewallRule -DisplayName $rule.DisplayName `
+#                             -Direction $rule.Direction `
+#                             -Protocol $rule.Protocol `
+#                             -LocalPort $rule.LocalPort `
+#                             -RemotePort $rule.RemotePort `
+#                             -Action $rule.Action
+#     }
+# }
 
 
 $maliciousPorts = @(
