@@ -1,4 +1,4 @@
-$acclist = @("jmoney", "plinktern") | ForEach-Object { $_.Trim().ToLower() }
+$acclist = @("athena","ajohnson","achi","anguyen","kliu","jsmith","dgonzalez","krbtgt", "DefaultAccount", "Guest", "WDAGUtilityAccount") | ForEach-Object { $_.Trim().ToLower() }
 
 # Get all AD users (enabled or disabled), convert names to lowercase
 $acc = Get-ADUser -Filter * -Properties SamAccountName |
