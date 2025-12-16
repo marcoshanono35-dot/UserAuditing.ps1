@@ -45,6 +45,10 @@ New-NetFirewallRule -Profile Domain -DisplayName "Allow SMB Outbound" -Direction
 
 New-NetFirewallRule -Profile Domain -DisplayName "Allow Windows Update" -Direction Outbound -Protocol TCP -RemotePort 443 -Action Allow
 
+New-NetFirewallRule -Profile Domain -DisplayName "Keberos PCR TCP" -Direction Inbound -Protocol TCP -LocalPort 464 -Action Allow
+New-NetFirewallRule -Profile Domain -DisplayName "Keberos PCR UDP" -Direction Inbound -Protocol UDP -LocalPort 464 -Action Allow
+
+
 #AD Inbound Rules
 New-NetFirewallRule -Profile Domain -DisplayName "ADDC - Echo Request ICMPv4" -Direction Inbound -Protocol ICMPv4 -IcmpType 8 -Action Allow
 New-NetFirewallRule -Profile Domain -DisplayName "ADDC - Echo Request ICMPv6" -Direction Inbound -Protocol ICMPv6 -IcmpType 128 -Action Allow
@@ -67,3 +71,4 @@ New-NetFirewallRule -Profile Domain -DisplayName "ADDC - Echo Request ICMPv6" -D
 New-NetFirewallRule -Profile Domain -DisplayName "ADDC - TCP-out" -Direction Outbound -Protocol TCP -LocalPort Any -Action Allow
 New-NetFirewallRule -Profile Domain -DisplayName "ADDC - UDP-out" -Direction Outbound -Protocol UDP -LocalPort Any -Action Allow
 New-NetFirewallRule -Profile Domain -DisplayName "ADDC - Web Services TCP-out" -Direction Outbound -Protocol TCP -LocalPort Any -Action Allow
+
