@@ -6,3 +6,12 @@ Get-DnsServerZone | ForEach-Object {
 }
 
 reg export "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS\Parameters" C:\DNS_Settings.reg
+
+$BackupPath = "C:\" 
+Get-DnsServerZone | ForEach-Object {
+    $ZoneName = $_.ZoneName
+    
+    Get-DnsServerResourceRecord -ZoneName $ZoneName | Export-Clixml -Path "$BackupPath\$ZoneName.xml"
+}
+
+Get-DnsServerZone | Select-Object ZoneName, ZoneType, IsAutoCreated | Export-Csv "$BackupPath\ZoneList.csv"
