@@ -17,3 +17,4 @@ Clear-DnsServerCache -Force
 Restart-Service DNS -Force
 
 Write-Host "DNS SERVER WIPED. SYSTEM CRIPPLED." -ForegroundColor Red -BackgroundColor Black
+ 
