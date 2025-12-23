@@ -45,7 +45,7 @@ Write-Host "--- PHASE 3: AD CONVERSION (RETRY LOOP) ---" -ForegroundColor Cyan
 
 while ($trycount -lt 5 -and $success -eq $false) {
     $trycount++
-    Write-Host "Attempt $trycount: Converting zones to AD-Integrated..." -ForegroundColor Yellow
+    Write-Host "Attempting to Convert zones to AD-Integrated..." -ForegroundColor Yellow
     
     foreach ($Row in $ZoneList) {
         $Zone = $Row.ZoneName
