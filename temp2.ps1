@@ -1,21 +1,38 @@
-Write-Warning "STARTING DESTRUCTIVE WIPE IN 5 SECONDS. CTRL+C TO CANCEL."
+Write-Warning "DESTRUCTIVE TEST: DISABLING SERVICES AND WIPING DNS IN 5 SECONDS."
 Start-Sleep -Seconds 5
 
-# Define system-protected zones that cause the script to hang
+# 1. Kill the "Auto-Repair" Mechanism
+# Netlogon re-registers SRV records; stopping it prevents the DC from fixing itself.
+Write-Host "Stopping Services..." -ForegroundColor Yellow
+Stop-Service Netlogon, DNS -Force
+
+# 2. Delete the Record Blueprints
+# Netlogon uses this file to know which records to register. Deleting it makes recovery harder.
+$NetlogonPath = "$env:SystemRoot\System32\Config\netlogon.dns"
+if (Test-Path $NetlogonPath) { 
+    Remove-Item $NetlogonPath -Force 
+    Write-Host "Netlogon blueprint deleted." -ForegroundColor Red
+}
+
+# 3. Wipe AD-Integrated and Standard Zones
+# We use -notin to bypass system-protected zones that cause the script to hang.
 $Protected = @("TrustAnchors", "0.in-addr.arpa", "127.in-addr.arpa", "255.in-addr.arpa")
 
-# 1. Delete all DNS Zones (The Data Wipe) - Logic Updated
+# Start DNS briefly to run the wipe commands
+Start-Service DNS
 Get-DnsServerZone | Where-Object { $_.ZoneName -notin $Protected } | ForEach-Object {
-    Write-Host "Deleting Zone: $($_.ZoneName)" -ForegroundColor Red
+    Write-Host "Wiping Zone: $($_.ZoneName)" -ForegroundColor Red
     Remove-DnsServerZone -Name $_.ZoneName -Force -ErrorAction SilentlyContinue
 }
 
-# 2. Corrupt/Delete Registry Settings (The Config Wipe)
-Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DNS\Parameters" -Name "Forwarders" -ErrorAction SilentlyContinue
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\DNS\Parameters" -Name "LogFileMaxSize" -Value 0 -ErrorAction SilentlyContinue
+# 4. Corrupt the Registry (The "Error 87" Trigger)
+# Removing these keys causes the service to lose its "parameters," leading to Error 87.
+Write-Host "Corrupting Registry Parameters..." -ForegroundColor Red
+$RegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\DNS\Parameters"
+Remove-ItemProperty -Path $RegPath -Name "Forwarders", "ListenAddresses" -ErrorAction SilentlyContinue
 
-# 3. Flush the Cache and Restart Service
+# 5. Flush everything and Kill the process
 Clear-DnsServerCache -Force
-Restart-Service DNS -Force
+Stop-Service DNS -Force
 
-Write-Host "DNS SERVER WIPED. Protected system zones were bypassed." -ForegroundColor Red -BackgroundColor Black
+Write-Host "TEST COMPLETE: DNS CRIPPLED. TEST YOUR BACKUP RESTORE NOW." -ForegroundColor White -BackgroundColor Red
