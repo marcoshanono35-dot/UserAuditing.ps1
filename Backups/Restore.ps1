@@ -75,7 +75,7 @@ while ($TryCount -lt $MaxTries -and -not $Success) {
             Restart-Service Netlogon -Force 
         }
         
-        Write-Host " [WAITING] AD partition not ready. Retrying in 5 seconds..." -ForegroundColor Gray
+        Write-Host " [WAITING] AD partition not ready. Retrying in 10 seconds..." -ForegroundColor Gray
         Start-Sleep -Seconds 10  
     }
    
