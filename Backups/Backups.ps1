@@ -16,3 +16,4 @@ Start-Sleep -Seconds 2
 Move-Item "C:\Windows\System32\dns\*.dns.bak" $BackupPath -Force
 
 Write-Host "Backup Complete. Files secured in $BackupPath" -ForegroundColor Green
+ 
