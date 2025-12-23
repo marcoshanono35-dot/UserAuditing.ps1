@@ -1,23 +1,16 @@
 $BackupPath = "C:\DNS_Backup"
-New-Item -Path $BackupPath -ItemType Directory -Force | Out-Null
+if (Test-Path $BackupPath) { Remove-Item $BackupPath -Recurse -Force }
+New-Item $BackupPath -ItemType Directory -Force | Out-Null
 
-$SnapshotPath = "$BackupPath\DNS_Snapshot.csv"
-if (Test-Path $SnapshotPath) { Remove-Item $SnapshotPath -Force }
+Get-DnsServerZone | Select-Object ZoneName, ZoneType | Export-Csv "$BackupPath\ZoneList.csv"
 
+Write-Host "Exporting Zones..." -ForegroundColor Cyan
 Get-DnsServerZone | ForEach-Object {
-    $name = $_.ZoneName
-    Get-DnsServerResourceRecord -ZoneName $name | 
-    Select-Object @{n='Zone';e={$name}}, HostName, RecordType, @{n='Data';e={$_.RecordData.IPv4Address.IPAddressToString}} | 
-    Export-Csv -Append -Path $SnapshotPath -NoTypeInformation
+    $Zone = $_.ZoneName
+    dnscmd /ZoneExport $Zone "$Zone.dns.bak" | Out-Null
 }
 
-reg export "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS\Parameters" "$BackupPath\DNS_Settings.reg" /y
+Start-Sleep -Seconds 2
+Move-Item "C:\Windows\System32\dns\*.dns.bak" $BackupPath -Force
 
-Get-DnsServerZone | ForEach-Object {
-    $ZoneName = $_.ZoneName
-    Get-DnsServerResourceRecord -ZoneName $ZoneName | Export-Clixml -Path "$BackupPath\$ZoneName.xml"
-}
-
-Get-DnsServerZone | Select-Object ZoneName, ZoneType, IsAutoCreated, ReplicationScope | Export-Csv "$BackupPath\ZoneList.csv"
-
-Write-Host "Backup Complete at $BackupPath" -ForegroundColor Green
+Write-Host "Backup Complete. Files secured in $BackupPath" -ForegroundColor Green
