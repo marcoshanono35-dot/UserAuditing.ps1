@@ -12,7 +12,6 @@ Get-DnsServerZone | ForEach-Object {
 
 Start-Sleep -Seconds 2
 Move-Item "C:\Windows\System32\dns\*.dns.bak" $BackupPath -Force
-reg export "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS\Parameters" C:\DNS_Backup\DNS_Settings.reg
 
 Write-Host "Backup Complete. Files secured in $BackupPath" -ForegroundColor Green
  
