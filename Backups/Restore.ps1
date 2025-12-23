@@ -6,7 +6,6 @@ $Success = $false
 
 Write-Host "--- PHASE 0: LOG & ROLE HEALING ---" -ForegroundColor Cyan
 Write-Host "  Resetting Event Tracing..."
-Stop-EtwTraceSession -Name "EventLog-System" -ErrorAction SilentlyContinue
 Get-Service EventLog | Restart-Service -Force
 wevtutil cl System; wevtutil cl "DNS Server"; wevtutil cl "Directory Service"
 
