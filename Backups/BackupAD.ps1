@@ -1,4 +1,4 @@
-ntdsutil "set dsrm password" "reset password on server null"
+ntdsutil "set dsrm password" "reset password on server null" q q
 
 $BackupPath = "C:\AD_Backup"
 if (Test-Path $BackupPath) { Remove-Item $BackupPath -Recurse -Force }
