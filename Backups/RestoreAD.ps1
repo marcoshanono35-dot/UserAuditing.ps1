@@ -13,8 +13,8 @@ if (-not (Test-Path $BackupPath)) {
 }
 
 # 1. CHECK FOR DSRM (SAFE MODE)
-$SafeMode = (Get-WmiObject Win32_ComputerSystem).BootupState
-if ($SafeMode -match "Fail-safe") {
+$SafeMode = Test-Path "HKLM:\System\CurrentControlSet\Control\SafeBoot\Option"
+if ($SafeMode) {
     Write-Host "[!] DSRM DETECTED: Proceeding with Actual Database Restore." -ForegroundColor Yellow
     
     # PHASE 1: THE BRAIN (NTDS.DIT)
