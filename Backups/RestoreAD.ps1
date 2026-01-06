@@ -35,20 +35,40 @@ else {
     Write-Host "[*] NORMAL MODE DETECTED: Proceeding with Surgical Fixes." -ForegroundColor Yellow
     Write-Host "------------------------------------------------------------"
 
-    Write-Host "STEP 1: Fix System Time (Resolves GitHub/SSL Cert Errors)" -ForegroundColor Cyan
-    Write-Host "Set-Date -Date `"01/06/2026 15:30`"  <-- (Update this to current time)"
-    Write-Host ""
+    # STEP 1: Fix System Time
+    # This resolves the SEC_E_CERT_EXPIRED error seen in your logs.
+    Write-Host "[*] STEP 1: Syncing System Time..." -ForegroundColor Cyan
+    $CurrentDate = "01/06/2026 17:45" # Adjusted to match your last successful restore time
+    Set-Date -Date $CurrentDate
 
-    Write-Host "STEP 2: Import GPOs (Do not use -All parameter)" -ForegroundColor Cyan
-    Write-Host "Get-ChildItem `"$GPOPath`" -Directory | ForEach-Object { Import-GPO -BackupId `$_.Name -Path `"$GPOPath`" -CreateIfNeeded }"
-    Write-Host ""
+    # STEP 2: Import GPOs
+    # Replaced the invalid -All parameter with a functional loop.
+    if (Test-Path $GPOPath) {
+        Write-Host "[*] STEP 2: Importing GPO Exports..." -ForegroundColor Cyan
+        Get-ChildItem $GPOPath -Directory | ForEach-Object {
+            Write-Host " Importing GPO: $($_.Name)" -ForegroundColor Gray
+            Import-GPO -BackupId $_.Name -Path $GPOPath -CreateIfNeeded | Out-Null
+        }
+    }
 
-    Write-Host "STEP 3: Reconstruct Users from CSV (ADWS must be running)" -ForegroundColor Cyan
-    Write-Host "`$Users = Import-Csv `"$UserCSV`""
-    Write-Host "foreach (`$U in `$Users) { New-ADUser -Name `$U.SamAccountName -SamAccountName `$U.SamAccountName -Path (`$U.DistinguishedName.Substring(`$U.DistinguishedName.IndexOf('OU='))) -Enabled `$true }"
-    Write-Host ""
+    # STEP 3: Reconstruct Users from CSV
+    # This works now because ADWS is running in Normal Mode.
+    if (Test-Path $UserCSV) {
+        Write-Host "[*] STEP 3: Reconstructing Users from CSV..." -ForegroundColor Cyan
+        $Users = Import-Csv $UserCSV
+        foreach ($U in $Users) {
+            if (-not (Get-ADUser -Filter "SamAccountName -eq '$($U.SamAccountName)'" -ErrorAction SilentlyContinue)) {
+                Write-Host " Creating user: $($U.SamAccountName)" -ForegroundColor Gray
+                # Extracts the OU path from the DistinguishedName
+                $OU = $U.DistinguishedName.Substring($U.DistinguishedName.IndexOf("OU="))
+                $SecurePass = ConvertTo-SecureString "P@ssword123!" -AsPlainText -Force
+                New-ADUser -Name $U.SamAccountName -SamAccountName $U.SamAccountName -Path $OU -AccountPassword $SecurePass -Enabled $true
+            }
+        }
+    }
 
-    Write-Host "--- IF YOU NEED TO ENTER DSRM AGAIN ---" -ForegroundColor Red
-    Write-Host "bcdedit /set {current} safeboot dsrepair"
-    Write-Host "Restart-Computer"
+    Write-Host "`n--- Reconstruction Complete. Please run 'gpupdate /force' ---" -ForegroundColor Green
+    
+    Write-Host "`n[!] To return to DSRM if needed, type:" -ForegroundColor Red
+    Write-Host "bcdedit /set {current} safeboot dsrepair && Restart-Computer"
 }
