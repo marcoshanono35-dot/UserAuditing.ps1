@@ -47,7 +47,8 @@ else {
         Write-Host "[*] STEP 2: Importing GPO Exports..." -ForegroundColor Cyan
         Get-ChildItem $GPOPath -Directory | ForEach-Object {
             Write-Host " Importing GPO: $($_.Name)" -ForegroundColor Gray
-            Import-GPO -BackupId $_.Name -Path $GPOPath -CreateIfNeeded | Out-Null
+            $Backup = Get-GPOBackup -BackupId $_.Name -Path $GPOPath
+            Import-GPO -BackupId $_.Name -Path $GPOPath -TargetName $Backup.DisplayName -CreateIfNeeded
         }
     }
 
