@@ -1,12 +1,9 @@
-$s = Get-ADObject -Filter * -SearchBase "DC=GREAT,DC=CRETACEOUS" | Group-Object ObjectClass | Select-Object Count
+# Count including the deleted objects container
+$totalWithDeleted = (Get-ADObject -Filter * -IncludeDeletedObjects -SearchBase "DC=GREAT,DC=CRETACEOUS").Count
 
-# Initialize the total variable at 0
-$total = 0
+# Count objects in the Configuration partition (where some of those 381 might live)
+$configCount = (Get-ADObject -Filter * -SearchBase "CN=Configuration,DC=GREAT,DC=CRETACEOUS").Count
 
-foreach($c in $s){
-    # Add each group's count to the total
-    $total += $c.Count
-}
-
-# Output the final result
-Write-Host "Total Sum of All Records: $total" -ForegroundColor Green
+Write-Host "Visible Objects: 287"
+Write-Host "Objects + Deleted: $totalWithDeleted"
+Write-Host "Configuration Records: $configCount"
